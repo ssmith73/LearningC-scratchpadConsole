@@ -25,10 +25,14 @@ namespace scratchpadConsole
             int randNum = rand.Next(99);
             //myDel is a (delegate) type that holds a method, one that returns void, and takes an int parameter
                                                     // holds this method
+                   //simpleDel holds a reference to a
+                   //delegate type myDel
             myDel simpleDel = (randNum > 50) ? new myDel(program.PrintHigh) : 
                          // or this method
                 new myDel( program.PrintLow);
 
+            //execute the simpleDel delegate object, which executes whatever
+            //method the it's holding
             simpleDel(randNum);
         }
     }
