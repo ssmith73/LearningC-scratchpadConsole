@@ -9,31 +9,36 @@ namespace scratchpadConsole
        Parameters (if any)
      */
 
-        //! the delegate object can hold one or more methods
+    //! the delegate object can hold one or more methods
 
-    //!     an object      myDel is a (delegate) type
-    public delegate void myDel(int num);
+    //!     an object      myDel is a (delegate) type (that holds, and exectutes methods)
+
+    delegate void myDel(int someNumber);
+
+
     public class Program
     {
-        internal void PrintHigh(int value) { Console.WriteLine($"High Number {value}"); }
-        internal void PrintLow(int value) { Console.WriteLine($"Low Number {value}"); }
+        void LowNumber(int num) { Console.WriteLine($"{num}: Is a Low Value!"); }
+        void HighNumber(int num) { Console.WriteLine($"{num}: Is a High Value!"); }
 
         static void Main()
         {
             Program program = new Program();
-            Random rand = new Random();
-            int randNum = rand.Next(99);
-            //myDel is a (delegate) type that holds a method, one that returns void, and takes an int parameter
-                                                    // holds this method
-                   //simpleDel holds a reference to a
-                   //delegate type myDel
-            myDel simpleDel = (randNum > 50) ? new myDel(program.PrintHigh) : 
-                         // or this method
-                new myDel( program.PrintLow);
 
-            //execute the simpleDel delegate object, which executes whatever
-            //method the it's holding
-            simpleDel(randNum);
+            myDel del;
+            Random ranNum = new Random();
+            int randomValue = ranNum.Next(99);
+
+            // Use the delegate object to hold one of 
+            // 2 possible methods
+            del = randomValue > 50 ? 
+               new myDel(program.HighNumber) :
+               new myDel(program.LowNumber);
+
+            del(randomValue);
+
+
+
         }
     }
 }
