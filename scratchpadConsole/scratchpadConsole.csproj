@@ -12,6 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Interpolation">
+      <HintPath>..\Resources\Interpolation.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="44006_44031.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
