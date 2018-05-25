@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using Interpolation;
+using System.Collections.Generic;
 
 namespace scratchpadConsole
 {
@@ -33,7 +34,8 @@ namespace scratchpadConsole
 
             // Initialize the interpolation manager using the sample data
             InterpolationManager im = 
-                new InterpolationManager("Panasonic_Thermistor.csv");
+                //new InterpolationManager("Panasonic_Thermistor.csv");
+                new InterpolationManager("44006_44031.csv");
 
             // Interpolate using the gixen X axis, using the given Y axis, 
             // and using the given X value (returns the associated Y value)
@@ -50,6 +52,23 @@ namespace scratchpadConsole
             double val3 = im.Interpolate(111);
 
 
+            List<double> resistances = new List<double>();
+            var ress = new List<Resistances>();
+            double value = 0 ;
+            double roundedTemp;
+
+            for(double t =-80;t<=150;t+=0.05)
+            {
+                value  = Math.Round(im.Interpolate(t),5);
+                roundedTemp  = Math.Round(t,5);
+
+                resistances.Add(value);
+                ress.Add(new Resistances {Temperature=roundedTemp,Resistance=value});
+            }
+
+
+            var advancedInterpEngine = new FileHelperEngine<Resistances>();
+            advancedInterpEngine.WriteFile("advancedInterp400XFamily.txt", ress);
 
             #region LINEAR INTERPOLATION - FROM EXCEL EQUATION
             // Extract linear interpolation
@@ -79,8 +98,41 @@ namespace scratchpadConsole
             ip2.ResAtMaxTemp = omega.FirstOrDefault(x => x.Temerature == ip2.MaxTemp).Resistance;
             ip2.ResAtMinTemp = omega.FirstOrDefault(x => x.Temerature == ip2.MinTemp).Resistance;
 
+            double temp;
+            List<double> resistancesSimple = new List<double>();
+            var ressSimple = new List<Resistances>();
+            double valueSimple;
 
-            Console.WriteLine(
+            foreach (var inputVal in panasonic)
+            {
+
+            }
+            for (double t = -40; t <= 125; t += 0.05)
+            {
+                temp = Math.Round(t, 5);
+                ip2.EnteredTemperature = temp;
+                ip2.MaxTemp = Math.Ceiling(temp);
+                ip2.MinTemp = Math.Floor(temp);
+
+                if(panasonic.FirstOrDefault(x => x.Temerature == ip2.MaxTemp) == null ||
+                    panasonic.FirstOrDefault(x => x.Temerature == ip2.MinTemp) == null)
+                    continue;
+
+                if(ip2.MaxTemp == ip2.MinTemp)
+                {
+                    double resVal =  panasonic.FirstOrDefault(x => x.Temerature == ip2.MaxTemp).Resistance;
+                    ressSimple.Add(new Resistances {Temperature=temp,Resistance=resVal});
+                    continue;
+                }
+
+                ip2.ResAtMaxTemp = panasonic.FirstOrDefault(x => x.Temerature == ip2.MaxTemp).Resistance;
+                ip2.ResAtMinTemp = panasonic.FirstOrDefault(x => x.Temerature == ip2.MinTemp).Resistance;
+                valueSimple = program.ThermistorInterpelator(ip2);
+                ressSimple.Add(new Resistances {Temperature=temp,Resistance=valueSimple});
+
+            }
+
+        Console.WriteLine(
                 $"Entered Temperature: {ip.EnteredTemperature}" + "\n" +
                 $"Max Temperature: {ip.MaxTemp}" + "\n" +
                 $"Min Temperature: {ip.MinTemp}" + "\n" +
@@ -101,7 +153,7 @@ namespace scratchpadConsole
 
             #endregion
         }
-        public decimal ThermistorInterpelator(InterpolatorInputs ips) => Convert.ToDecimal(
+        public double ThermistorInterpelator(InterpolatorInputs ips) => (
                 (ips.ResAtMaxTemp - ips.ResAtMinTemp) / (ips.MaxTemp - ips.MinTemp) *
                 (ips.EnteredTemperature - ips.MinTemp) + ips.ResAtMinTemp);
     }
@@ -112,5 +164,13 @@ namespace scratchpadConsole
         public double MinTemp { get; set; }
         public double ResAtMaxTemp { get; set; }
         public double ResAtMinTemp { get; set; }
+    }
+
+    [DelimitedRecord(",")]
+    public class Resistances
+    {
+        public double Temperature;
+        public double Resistance;
+
     }
 }
